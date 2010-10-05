@@ -19,4 +19,4 @@ message={}
 for word in word_list:
 	message['word']=word
 	print word
-	beanstalk.put(json.dumps(message, separators=(',',':')),ttr=600)
+	beanstalk.put(json.dumps(message, separators=(',',':')),ttr=1200)

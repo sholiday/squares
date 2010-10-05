@@ -9,13 +9,13 @@ import json
 import uuid
 
 length=int(sys.argv[1])
-instance_id='id:%s'%uuid.uuid4()
+instance_id='id-%s'%uuid.uuid4()
 
 word_list = filter(lambda x: x.isalpha(), map(lambda x: x.strip(), open('wordlists/words_len_%s' % length).readlines()))
 word_dict = {}
 
-logfile = open('squares_'+sys.argv[1]+'.log', 'a',0)
-ans = open('squares_'+sys.argv[1]+'.ans', 'a',0)
+logfile = open('squares_'+sys.argv[1]+'_'+instance_id+'.log', 'a',0)
+ans = open('squares_'+sys.argv[1]+'_'+instance_id+'.ans', 'a',0)
 	
 
 def try_word(word):
@@ -92,6 +92,9 @@ while (True):
 	
 		log(20,'Finished word <%s>' % word)
 		log(10,'Finished JID:%s, deleting' % job.jid)
-		job.delete()
+		try:
+			job.delete()
+		except beanstalkc.CommandFailed:
+			log(29,'Tried to delete job, perhaps we ran over time. <jid:%s>'%job.jid)
 	except beanstalkc.DeadlineSoon:
 		job.release()
