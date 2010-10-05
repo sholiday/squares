@@ -29,20 +29,21 @@ def try_word(word):
 	run(grid_e,1)
 
 def run(grid, row):
-	if row==length:
-		out= formatGrid(grid)
-		log(31,'##SOLVED##\n'+out)
-		ans.write(out)
-		print out
-	else:
-		pre=''
-		for i in range(row):
-			pre += grid[row][i]
-		if word_dict.has_key(pre):
-			for word in word_dict[pre]:
-				for i in range(length):
-					grid[i][row]=word[i]
-					grid[row][i]=word[i]
+	pre=''
+	for i in range(row):
+		pre += grid[row][i]
+	if word_dict.has_key(pre):
+		for word in word_dict[pre]:
+			for i in range(length):
+				grid[i][row]=word[i]
+				grid[row][i]=word[i]
+			
+			if (row==length-1):
+				out= formatGrid(grid)
+				log(31,'##SOLVED##\n'+out)
+				ans.write(out)
+				print out
+			else:
 				#check if this word has prefixes throughout the space
 				goodWord=True
 				for i in range(row,length):
@@ -51,8 +52,7 @@ def run(grid, row):
 						prefix+=grid[i][j]
 					if not word_dict.has_key(prefix):
 						goodWord=False
-						break
-				if goodWord: 
+				if goodWord==True: 
 					run(grid,row+1)
 def formatGrid(grid):
 	out='-------------------------\n'
