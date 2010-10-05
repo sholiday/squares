@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import sys
+import beanstalkc
 from datetime import datetime
 
 length=int(sys.argv[1])
