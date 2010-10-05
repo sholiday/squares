@@ -3,19 +3,19 @@ import sys
 import beanstalkc
 from datetime import datetime
 import beanstalkc
-import syslog
 import time
 import json
 import uuid
 
 length=int(sys.argv[1])
+instance_name=sys.argv[2]
 instance_id='id-%s'%uuid.uuid4()
 
 word_list = filter(lambda x: x.isalpha(), map(lambda x: x.strip(), open('wordlists/words_len_%s' % length).readlines()))
 word_dict = {}
 
-logfile = open('squares_'+sys.argv[1]+'_'+instance_id+'.log', 'a',0)
-ans = open('squares_'+sys.argv[1]+'_'+instance_id+'.ans', 'a',0)
+logfile = open('squares_'+sys.argv[1]+'_'+instance_name+'_'+instance_id+'.log', 'a',0)
+ans = open('squares_'+sys.argv[1]+'_'+instance_name+'_'+instance_id+'.ans', 'a',0)
 	
 
 def try_word(word):
@@ -39,12 +39,21 @@ def run(grid, row):
 		for i in range(row):
 			pre += grid[row][i]
 		if word_dict.has_key(pre):
-			for worde in word_dict[pre]:
+			for word in word_dict[pre]:
 				for i in range(length):
-					grid[i][row]=worde[i]
-					grid[row][i]=worde[i]
-				run(grid,row+1)
-	return True
+					grid[i][row]=word[i]
+					grid[row][i]=word[i]
+				#check if this word has prefixes throughout the space
+				goodWord=True
+				for i in range(row,length):
+					prefix=''
+					for j in range(row+1):
+						prefix+=grid[i][j]
+					if not word_dict.has_key(prefix):
+						goodWord=False
+						break
+				if goodWord: 
+					run(grid,row+1)
 def formatGrid(grid):
 	out='-------------------------\n'
 	for row in grid:
@@ -77,6 +86,8 @@ def log(level,message):
 		info['level']=level
 		info['message']=message
 		info['instance_id']=instance_id
+		info['version']='3_2'
+		info['instance_name']=instance_name
 		beanstalk.put(json.dumps(info, separators=(',',':')),ttr=10)
 
 while (True):
